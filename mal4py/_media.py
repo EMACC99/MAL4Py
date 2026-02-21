@@ -1,17 +1,41 @@
-from typing import Union
-
-
 class _Media:
     def __init__(self, **serie):
         self.__dict__.update(serie)
 
+    def __repr__(self):
+        return repr((self.id, self.title))
+
     def __str__(self):
         return f"{self.__dict__}"
 
+    def __gt__(self, other):
+        return self.id > other.id
 
-class ErrorSearch(_Media):
-    def __init__(self, **serie):
-        super().__init__(**serie)
+    def __lt__(self, other):
+        return self.id < other.id
+
+    def __le__(self, other):
+        return self.id <= other.id
+
+    def __ge__(self, other):
+        return self.id >= other.id
+
+    def __ne__(self, other):
+        return self.id != other.id
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+
+class ErrorSearch(Exception):
+    def __init__(self, **error):
+        self.__dict__.update(error)
+
+    def __str__(self):
+        return f"{self.__dict__}"
+
+    def __repr__(self):
+        return repr((self.status, self.message, self.error))
 
 
 class Anime(_Media):
@@ -38,13 +62,19 @@ class Forum(_Media):
     def __init__(self, **serie):
         super().__init__(**serie)
 
+    def __repr__(self):
+        return repr((self.title))
+
 
 class User(_Media):
     def __init__(self, **serie):
         super().__init__(**serie)
 
+    def __repr__(self):
+        return repr((self.id, self.name))
 
-def set_media(media_class) -> Union[Anime, Manga, ErrorSearch]:
+
+def set_media(media_class) -> Anime | Manga | ErrorSearch:
     def set_result(function):
         def wrapper(*args, **kwargs):
             result = function(*args, **kwargs)
@@ -59,7 +89,7 @@ def set_media(media_class) -> Union[Anime, Manga, ErrorSearch]:
     return set_result
 
 
-def set_media_list(media_class) -> Union[Anime, Manga, ErrorSearch]:
+def set_media_list(media_class) -> list[Anime] | list[Manga] | ErrorSearch:
     def set_result(function):
         def wrapper(*args, **kwargs):
             result = function(*args, **kwargs)
@@ -84,7 +114,7 @@ def set_media_list(media_class) -> Union[Anime, Manga, ErrorSearch]:
     return set_result
 
 
-def set_forum_list(function) -> Union[Forum, ErrorSearch]:
+def set_forum_list(function) -> list[Forum] | ErrorSearch:
     def wrapper(*args, **kwargs):
         result = function(*args, **kwargs)
         if result[0] == 200:
@@ -99,7 +129,7 @@ def set_forum_list(function) -> Union[Forum, ErrorSearch]:
     return wrapper
 
 
-def set_topics_forum(function) -> Union[Forum, ErrorSearch]:
+def set_topics_forum(function) -> list[Forum] | ErrorSearch:
     def wrapper(*args, **kwargs):
         result = function(*args, **kwargs)
         if result[0] == 200:
